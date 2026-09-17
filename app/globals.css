@@ -1,16 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-::root {
-  --midnight: #141916;
-  --ivory: #F5F0E8;
-  --gold: #B8972A;
-  --tea: #8B9E5A;
+@theme {
+  --color-midnight: #141916;
+  --color-ivory: #F5F0E8;
+  --color-gold: #B8972A;
+  --color-tea: #8B9E5A;
 }
 
-@layer base {
-  body {
-    @apply bg-midnight text-ivory;
-  }
+body {
+  background-color: var(--color-midnight);
+  color: var(--color-ivory);
+  font-family: 'Inter', sans-serif;
 }
