@@ -3,9 +3,18 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 
 // Postmark inbound webhook — receives parsed email as JSON
 export async function POST(req: NextRequest) {
-  // Simple bearer token auth for Postmark webhook
+  // Auth: accept Bearer token OR HTTP Basic Auth where password = POSTMARK_WEBHOOK_TOKEN
+  // Postmark embeds credentials in the webhook URL as https://user:pass@host/path
+  // which causes it to send Authorization: Basic base64(user:pass)
   const auth = req.headers.get('authorization') ?? ''
-  if (auth !== `Bearer ${process.env.POSTMARK_WEBHOOK_TOKEN}`) {
+  const expectedToken = process.env.POSTMARK_WEBHOOK_TOKEN ?? ''
+  let authorized = !!expectedToken && auth === `Bearer ${expectedToken}`
+  if (!authorized && auth.startsWith('Basic ')) {
+    const decoded = Buffer.from(auth.slice(6), 'base64').toString()
+    const password = decoded.split(':').slice(1).join(':')
+    authorized = !!expectedToken && password === expectedToken
+  }
+  if (!authorized) {
     return new NextResponse('Unauthorized', { status: 401 })
   }
 
@@ -13,7 +22,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const fromEmail = email.FromFull?.Email ?? email.From
-    const fromName  = email.FromFull?.Name ?? null
+    const fromName  = email.FromFull?.ame ?? null
     const subject   = email.Subject ?? '(no subject)'
     const textBody  = email.TextBody ?? email.HtmlBody ?? ''
     const ts        = new Date(email.Date ?? Date.now()).toISOString()
