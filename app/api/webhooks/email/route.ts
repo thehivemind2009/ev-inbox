@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const fromEmail = email.FromFull?.Email ?? email.From
-    const fromName  = email.FromFull?.ame ?? null
+    const fromName  = email.FromFull?.Name ?? null
     const subject   = email.Subject ?? '(no subject)'
     const textBody  = email.TextBody ?? email.HtmlBody ?? ''
     const ts        = new Date(email.Date ?? Date.now()).toISOString()
